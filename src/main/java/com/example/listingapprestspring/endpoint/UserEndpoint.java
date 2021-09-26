@@ -1,63 +1,44 @@
 package com.example.listingapprestspring.endpoint;
 
-//import com.example.listingapprestspring.repository.UserRepository;
-import com.example.listingapprestspring.model.Category;
-import com.example.listingapprestspring.repository.UserRepository;
+
+import com.example.listingapprestspring.model.User;
+import com.example.listingapprestspring.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
+@RequiredArgsConstructor
 
 public class UserEndpoint {
-    @Autowired
-    private  UserRepository userRepository;
 
-   @GetMapping("/users")
-  public List<User> users() {
-       return userRepository.findAll();
-   }
-    @GetMapping("/user/{id}")
-    public ResponseEntity<User> getCategory(@PathVariable("is") int id) {
-        Optional<User> byId = userRepository.findById(id);
-        if (byId.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(byId.get());
+    private final UserServiceImpl userServiceImpl;
+
+    @GetMapping("/users")
+    public List<com.example.listingapprestspring.model.User> users() {
+        return userServiceImpl.findAll();
     }
 
-    @PostMapping("/user")
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable("is") int id) {
+        return userServiceImpl.findById(id);
+    }
+
+    @PostMapping("/users")
     public User category(@RequestBody User user) {
-        return userRepository.save(user);
+        return userServiceImpl.addUser(user);
     }
 
-    @PutMapping("/user/{id}")
-    public ResponseEntity<User> category(@PathVariable ("id") int id, @RequestBody User user) {
-        Optional <User> byId=userRepository.findById(id);
-        if(byId.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-        User userFromDb=byId.get();
-        userFromDb.setUsername(user.getUsername());
-        userFromDb.setPassword(user.getPassword());
-
-        return ResponseEntity.ok().body(userRepository.save(user));
+    @PutMapping("/users/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable("id") int id, @RequestBody User user) {
+        return userServiceImpl.updateUser(id, user);
     }
 
-    @DeleteMapping("/user")
+    @DeleteMapping("/users")
     public ResponseEntity<User> deleteById(@PathVariable("is") int id) {
-        Optional<User> byId = userRepository.findById(id);
-        if (byId.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        userRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+        return userServiceImpl.deleteById(id);
     }
 
 }
